@@ -1,0 +1,1074 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#1A1205">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Histoire Quest">
+  <title>Histoire Quest</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/png" href="icon-192.png">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --gold:#C9A84C;--gold2:#E8C76A;--sand:#F5E6C8;
+  --dark:#1A1205;--dark2:#241808;--dark3:#342510;
+  --txt:#F0E0B8;--txt2:#A08858;
+  --ok:#2D6A2D;--ok2:#4CAF50;
+  --ko:#6A1F1F;--ko2:#E05050;
+  --radius:14px;
+}
+html,body{height:100%;overflow:hidden;background:var(--dark)}
+body{font-family:'Crimson Text',Georgia,serif;color:var(--txt);font-size:17px}
+#app{height:100vh;overflow-y:auto;-webkit-overflow-scrolling:touch}
+
+/* TOPBAR */
+.topbar{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:13px 18px 11px;background:var(--dark);
+  border-bottom:1px solid var(--dark3);
+  position:sticky;top:0;z-index:50;
+}
+.topbar-title{font-family:'Cinzel',serif;font-size:15px;font-weight:700;color:var(--gold);letter-spacing:0.06em}
+.topbar-xp{
+  display:flex;align-items:center;gap:5px;
+  background:var(--dark3);border-radius:20px;
+  padding:4px 12px;font-size:12px;font-weight:600;
+  color:var(--gold);font-family:'Cinzel',serif;
+}
+
+/* SCREENS */
+.screen{display:none;padding:18px;padding-bottom:48px}
+.screen.active{display:block}
+
+/* HOME */
+.banner{
+  background:var(--dark2);border:1px solid var(--dark3);
+  border-radius:var(--radius);overflow:hidden;margin-bottom:18px;
+}
+.banner-img{
+  width:100%;height:140px;
+  background:linear-gradient(160deg,#2C1A08 0%,#1B3A5C 60%,#3D2B1F 100%);
+  display:flex;align-items:center;justify-content:center;
+  font-size:72px;position:relative;
+}
+.banner-img::after{
+  content:'✡';position:absolute;right:18px;bottom:8px;
+  font-size:28px;opacity:0.25;color:var(--gold);
+}
+.banner-body{padding:14px 16px}
+.banner-sub{font-family:'Cinzel',serif;font-size:10px;letter-spacing:0.15em;color:var(--gold);margin-bottom:4px}
+.banner-h1{font-size:19px;font-weight:600;color:var(--sand);line-height:1.2;margin-bottom:6px}
+.banner-prob{font-size:13px;color:var(--txt2);font-style:italic;line-height:1.4}
+
+.xp-wrap{margin-bottom:18px}
+.xp-labels{display:flex;justify-content:space-between;font-size:12px;color:var(--txt2);margin-bottom:5px;font-family:'Cinzel',serif}
+.xp-bar{height:6px;background:var(--dark3);border-radius:3px;overflow:hidden}
+.xp-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold2));border-radius:3px;transition:width .6s}
+
+.sec-title{font-family:'Cinzel',serif;font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:var(--txt2);margin-bottom:10px}
+.sessions{display:flex;flex-direction:column;gap:9px;margin-bottom:20px}
+
+.sess-card{
+  background:var(--dark2);border:1px solid var(--dark3);
+  border-radius:var(--radius);padding:14px 16px;
+  display:flex;align-items:center;gap:12px;cursor:pointer;
+  transition:border-color .15s,transform .1s;
+}
+.sess-card:active{transform:scale(0.98)}
+.sess-card.unlocked{border-color:rgba(201,168,76,0.5)}
+.sess-card.done{border-color:var(--ok2);opacity:0.85}
+.sess-card.locked{opacity:0.38;cursor:not-allowed}
+.sess-icon{width:44px;height:44px;border-radius:10px;background:var(--dark3);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.sess-info{flex:1}
+.sess-name{font-family:'Cinzel',serif;font-size:12px;font-weight:700;color:var(--gold);margin-bottom:2px}
+.sess-desc{font-size:12px;color:var(--txt2);line-height:1.3}
+.sess-badge{font-family:'Cinzel',serif;font-size:10px;padding:3px 8px;border-radius:20px;border:1px solid rgba(201,168,76,0.35);color:var(--gold);background:rgba(201,168,76,0.1);white-space:nowrap}
+.sess-done-badge{font-size:18px}
+
+/* QUIZ HEADER */
+.quiz-hdr{display:flex;align-items:center;gap:10px;margin-bottom:18px}
+.btn-back{
+  background:var(--dark3);border:none;color:var(--gold);
+  width:36px;height:36px;border-radius:10px;font-size:20px;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;
+}
+.q-progress{flex:1;height:6px;background:var(--dark3);border-radius:3px;overflow:hidden}
+.q-progress-fill{height:100%;background:var(--gold);border-radius:3px;transition:width .4s}
+.q-lives{display:flex;gap:3px}
+.heart{font-size:15px;transition:opacity .3s}
+.heart.lost{opacity:0.15}
+
+/* LESSON CARD */
+.lesson-intro{
+  background:var(--dark2);border:1px solid var(--dark3);
+  border-radius:var(--radius);padding:20px;margin-bottom:16px;
+}
+.lesson-emoji{font-size:40px;text-align:center;margin-bottom:12px}
+.lesson-title{font-family:'Cinzel',serif;font-size:16px;color:var(--gold);font-weight:700;margin-bottom:10px;text-align:center}
+.lesson-text{font-size:15px;line-height:1.6;color:var(--txt);margin-bottom:10px}
+.lesson-text b{color:var(--gold2);font-weight:600}
+.lesson-text i{color:var(--txt2)}
+
+/* TIMELINE */
+.timeline{position:relative;padding-left:26px;margin:16px 0}
+.timeline::before{content:'';position:absolute;left:8px;top:0;bottom:0;width:2px;background:var(--dark3)}
+.tl-item{position:relative;margin-bottom:18px}
+.tl-dot{
+  position:absolute;left:-22px;top:3px;
+  width:12px;height:12px;border-radius:50%;
+  background:var(--gold);border:2px solid var(--dark);
+  flex-shrink:0;
+}
+.tl-date{font-family:'Cinzel',serif;font-size:11px;color:var(--gold);font-weight:700;margin-bottom:2px}
+.tl-fact{font-size:14px;color:var(--txt);line-height:1.4}
+
+/* QUESTION CARD */
+.q-card{
+  background:var(--dark2);border:1px solid var(--dark3);
+  border-radius:var(--radius);padding:20px;margin-bottom:16px;
+}
+.q-type-badge{
+  font-family:'Cinzel',serif;font-size:10px;letter-spacing:0.1em;
+  color:var(--txt2);margin-bottom:10px;
+}
+.q-text{font-size:17px;line-height:1.5;color:var(--sand);font-weight:600;margin-bottom:4px}
+.q-hint{font-size:13px;color:var(--txt2);font-style:italic;margin-top:4px}
+
+/* MCQ */
+.mcq-grid{display:flex;flex-direction:column;gap:9px;margin-bottom:14px}
+.mcq-btn{
+  background:var(--dark2);border:1.5px solid var(--dark3);
+  color:var(--txt);border-radius:var(--radius);
+  padding:13px 16px;font-size:15px;
+  font-family:'Crimson Text',serif;cursor:pointer;
+  text-align:left;line-height:1.3;
+  transition:border-color .12s,background .12s,transform .08s;
+}
+.mcq-btn:active{transform:scale(0.98)}
+.mcq-btn.correct{background:var(--ok);border-color:var(--ok2);color:#90EE90}
+.mcq-btn.wrong{background:var(--ko);border-color:var(--ko2);color:#FFB0B0}
+.mcq-btn:disabled{cursor:default}
+
+/* TRUE/FALSE */
+.tf-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.tf-btn{
+  background:var(--dark2);border:1.5px solid var(--dark3);
+  color:var(--txt);border-radius:var(--radius);
+  padding:16px 10px;font-size:16px;font-weight:600;
+  font-family:'Cinzel',serif;cursor:pointer;text-align:center;
+  transition:border-color .12s,background .12s;
+}
+.tf-btn.correct{background:var(--ok);border-color:var(--ok2);color:#90EE90}
+.tf-btn.wrong{background:var(--ko);border-color:var(--ko2);color:#FFB0B0}
+.tf-btn:disabled{cursor:default}
+
+/* FLASHCARD */
+.flashcard{
+  background:var(--dark2);border:1.5px solid rgba(201,168,76,0.4);
+  border-radius:var(--radius);padding:24px 20px;
+  margin-bottom:16px;text-align:center;
+  min-height:160px;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;cursor:pointer;
+  transition:transform .2s;
+}
+.flashcard:active{transform:scale(0.98)}
+.fc-word{font-family:'Cinzel',serif;font-size:22px;font-weight:700;color:var(--gold);margin-bottom:8px}
+.fc-tap{font-size:12px;color:var(--txt2);font-style:italic}
+.fc-def{font-size:15px;color:var(--sand);line-height:1.5;display:none}
+.fc-source{font-size:12px;color:var(--txt2);margin-top:8px;font-style:italic;display:none}
+.flashcard.flipped .fc-tap{display:none}
+.flashcard.flipped .fc-def{display:block}
+.flashcard.flipped .fc-source{display:block}
+.flashcard.flipped{background:rgba(201,168,76,0.08)}
+
+/* BILAN */
+.bilan-card{
+  background:var(--dark2);border-left:3px solid var(--gold);
+  border-radius:0 var(--radius) var(--radius) 0;
+  padding:18px;margin-bottom:14px;
+}
+.bilan-title{font-family:'Cinzel',serif;font-size:13px;color:var(--gold);margin-bottom:10px;font-weight:700}
+.bilan-text{font-size:14px;line-height:1.6;color:var(--txt)}
+.bilan-text b{color:var(--gold2)}
+
+/* INPUT */
+.input-wrap{display:flex;flex-direction:column;gap:10px;margin-bottom:14px}
+.txt-input{
+  background:var(--dark3);border:1.5px solid var(--dark3);
+  color:var(--txt);border-radius:var(--radius);
+  padding:13px 16px;font-size:16px;
+  font-family:'Crimson Text',serif;width:100%;
+  transition:border-color .15s;
+}
+.txt-input:focus{outline:none;border-color:var(--gold)}
+.txt-input.correct{border-color:var(--ok2);background:var(--ok)}
+.txt-input.wrong{border-color:var(--ko2);background:var(--ko)}
+.btn-check{
+  background:var(--dark3);border:1.5px solid rgba(201,168,76,0.4);
+  color:var(--gold);border-radius:var(--radius);
+  padding:13px;font-size:15px;font-weight:700;
+  font-family:'Cinzel',serif;cursor:pointer;letter-spacing:0.05em;
+}
+.btn-check:disabled{opacity:0.4;cursor:default}
+
+/* FEEDBACK */
+.feedback{
+  border-radius:var(--radius);padding:13px 16px;
+  margin-bottom:14px;display:none;
+  animation:sUp .2s ease;
+}
+@keyframes sUp{from{transform:translateY(8px);opacity:0}to{transform:translateY(0);opacity:1}}
+.feedback.ok{background:var(--ok);border:1px solid var(--ok2)}
+.feedback.ko{background:var(--ko);border:1px solid var(--ko2)}
+.feedback .fb-t{font-family:'Cinzel',serif;font-size:13px;font-weight:700;margin-bottom:3px}
+.feedback.ok .fb-t{color:#90EE90}
+.feedback.ko .fb-t{color:#FFB0B0}
+.feedback .fb-d{font-size:13px;color:var(--txt2);line-height:1.4}
+
+/* BUTTONS */
+.btn-next{
+  display:none;width:100%;background:var(--dark3);
+  border:1.5px solid var(--gold);color:var(--gold);
+  border-radius:var(--radius);padding:14px;
+  font-size:14px;font-weight:700;font-family:'Cinzel',serif;
+  cursor:pointer;letter-spacing:0.06em;margin-bottom:10px;
+}
+.btn-primary{
+  display:block;width:100%;
+  background:linear-gradient(135deg,var(--dark3),#4A3510);
+  border:1.5px solid var(--gold);color:var(--gold);
+  border-radius:var(--radius);padding:15px;
+  font-size:14px;font-weight:700;font-family:'Cinzel',serif;
+  cursor:pointer;letter-spacing:0.06em;margin-bottom:10px;
+  text-align:center;
+}
+.btn-secondary{
+  display:block;width:100%;background:var(--dark2);
+  border:1px solid var(--dark3);color:var(--txt2);
+  border-radius:var(--radius);padding:13px;
+  font-size:13px;font-weight:600;font-family:'Cinzel',serif;
+  cursor:pointer;text-align:center;
+}
+
+/* RESULTS */
+.results-hero{text-align:center;padding:20px 0 22px}
+.results-emblem{font-size:60px;margin-bottom:10px}
+.results-title{font-family:'Cinzel',serif;font-size:22px;font-weight:900;color:var(--gold);margin-bottom:6px}
+.results-sub{font-size:14px;color:var(--txt2);font-style:italic}
+.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:22px}
+.stat{background:var(--dark2);border:1px solid var(--dark3);border-radius:var(--radius);padding:14px;text-align:center}
+.stat-val{font-family:'Cinzel',serif;font-size:26px;font-weight:900;color:var(--gold2)}
+.stat-lbl{font-size:12px;color:var(--txt2);margin-top:3px}
+
+/* TOAST */
+.toast{
+  position:fixed;top:66px;left:50%;transform:translateX(-50%) translateY(-16px);
+  background:var(--dark3);border:1px solid var(--gold);
+  border-radius:20px;padding:7px 18px;
+  font-family:'Cinzel',serif;font-size:13px;color:var(--gold);
+  opacity:0;transition:all .3s;z-index:200;white-space:nowrap;pointer-events:none;
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* TIMELINE INTERACTIVE */
+.tl-quiz-item{
+  background:var(--dark2);border:1.5px solid var(--dark3);
+  border-radius:var(--radius);padding:14px 16px;margin-bottom:10px;
+  cursor:pointer;transition:border-color .15s;
+}
+.tl-quiz-item.correct{border-color:var(--ok2)}
+.tl-quiz-item.wrong{border-color:var(--ko2)}
+.tl-quiz-date{font-family:'Cinzel',serif;font-size:13px;color:var(--gold);margin-bottom:4px}
+.tl-quiz-fact{font-size:14px;color:var(--txt)}
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="topbar">
+    <div class="topbar-title">📜 Histoire Quest</div>
+    <div class="topbar-xp">★ <span id="xp-disp">0</span> XP</div>
+  </div>
+
+  <!-- HOME -->
+  <div id="screen-home" class="screen active">
+    <div class="banner">
+      <div class="banner-img">🕍</div>
+      <div class="banner-body">
+        <div class="banner-sub">Chapitre 5 · 6ème</div>
+        <div class="banner-h1">La naissance du monothéisme juif</div>
+        <div class="banner-prob"><i>Quand et dans quelles circonstances le monothéisme juif est-il né ?</i></div>
+      </div>
+    </div>
+
+    <div class="xp-wrap">
+      <div class="xp-labels">
+        <span>Progression</span>
+        <span id="xp-label">0 / 700 XP</span>
+      </div>
+      <div class="xp-bar"><div class="xp-fill" id="xp-fill" style="width:0%"></div></div>
+    </div>
+
+    <div class="sec-title">Sessions de révision</div>
+    <div class="sessions" id="sessions-list"></div>
+  </div>
+
+  <!-- SESSION SCREEN (générique) -->
+  <div id="screen-session" class="screen">
+    <div class="quiz-hdr">
+      <button class="btn-back" onclick="goHome()">←</button>
+      <div class="q-progress"><div class="q-progress-fill" id="q-pfill" style="width:0%"></div></div>
+      <div class="q-lives" id="q-lives"></div>
+    </div>
+    <div id="session-content"></div>
+  </div>
+
+  <!-- RESULTS -->
+  <div id="screen-results" class="screen">
+    <div class="results-hero">
+      <div class="results-emblem" id="res-emblem">🏛️</div>
+      <div class="results-title" id="res-title">Bien joué !</div>
+      <div class="results-sub" id="res-sub">Session terminée</div>
+    </div>
+    <div class="stats-grid">
+      <div class="stat"><div class="stat-val" id="res-score">0</div><div class="stat-lbl">Points</div></div>
+      <div class="stat"><div class="stat-val" id="res-correct">0</div><div class="stat-lbl">Bonnes réponses</div></div>
+      <div class="stat"><div class="stat-val" id="res-xp">+0</div><div class="stat-lbl">XP gagnés</div></div>
+      <div class="stat"><div class="stat-val" id="res-total">0/7</div><div class="stat-lbl">Sessions faites</div></div>
+    </div>
+    <button class="btn-primary" onclick="retrySession()">Recommencer cette session</button>
+    <button class="btn-secondary" onclick="goHome()">Retour à l'accueil</button>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══════════════════════════
+// SESSIONS DATA
+// ═══════════════════════════
+const SESSIONS = [
+  {
+    id:'s1', name:'Session 1 · Introduction',
+    icon:'🗺️', desc:'Sens global + frise chronologique',
+    xpRequired:0, xpReward:80,
+    steps:[
+      {type:'lesson', title:'Le monothéisme juif — Vue d\'ensemble', emoji:'🌍',
+        text:`Le chapitre que tu vas apprendre répond à une grande question : <b>comment et quand le peuple hébreu a-t-il inventé le monothéisme</b> — c'est-à-dire la croyance en un seul dieu ?<br><br>
+        Il y a <b>deux sources</b> pour comprendre cette histoire : la <b>Bible hébraïque</b>, qui raconte l'histoire telle que le peuple juif la transmet depuis des siècles, et les <b>historiens et archéologues</b>, qui cherchent des preuves concrètes.<br><br>
+        Le cours est découpé en <b>3 grandes parties</b> :<br>
+        1️⃣ <i>Les Hébreux d'après la Bible</i> (Abraham, Moïse)<br>
+        2️⃣ <i>Les Hébreux d'après les historiens</i> (royaumes, invasions)<br>
+        3️⃣ <i>La pratique du judaïsme</i> (Temple, synagogues, fêtes)`
+      },
+      {type:'timeline', title:'La grande frise chronologique',
+        events:[
+          {date:'VIIIe–IIe s. av. J.-C.', fact:'Rédaction de la Bible hébraïque'},
+          {date:'XIIIe s. av. J.-C.', fact:'Moïse et la fuite d\'Égypte (selon la Bible)'},
+          {date:'Xe s. av. J.-C.', fact:'Règne de David, fondation de Jérusalem'},
+          {date:'Xe s. av. J.-C.', fact:'Salomon construit le premier Temple de Jérusalem'},
+          {date:'VIIIe s. av. J.-C.', fact:'Les Assyriens conquièrent le royaume d\'Israël (nord)'},
+          {date:'VIe s. av. J.-C.', fact:'Les Babyloniens détruisent le royaume de Judée, exil à Babylone'},
+          {date:'70 apr. J.-C.', fact:'Les Romains brûlent le second Temple'},
+          {date:'135 apr. J.-C.', fact:'Les Romains interdisent Jérusalem aux Juifs → grande diaspora'},
+        ]
+      },
+      {type:'mcq', q:'Combien de grandes parties compte ce chapitre ?',
+        choices:['2','3','4','5'], answer:'3',
+        explain:'Le cours est divisé en 3 parties : les Hébreux selon la Bible, selon les historiens, et la pratique du judaïsme.'
+      },
+      {type:'mcq', q:'Qu\'est-ce que le monothéisme ?',
+        choices:['Croire en plusieurs dieux','Croire en un seul dieu','Ne pas croire en Dieu','Adorer la nature'],
+        answer:'Croire en un seul dieu',
+        explain:'Monothéisme vient du grec "mono" (un seul) et "theos" (dieu). Chez les Hébreux, ce dieu unique s\'appelle Yahvé.'
+      },
+      {type:'tf', q:'La Bible hébraïque est la seule source utilisée par les historiens pour étudier les Hébreux.',
+        answer:false,
+        explain:'Faux ! Les historiens utilisent aussi l\'archéologie et d\'autres sources écrites pour vérifier ou compléter ce que dit la Bible.'
+      },
+      {type:'mcq', q:'Quand les Romains brûlent-ils le second Temple de Jérusalem ?',
+        choices:['70 av. J.-C.','135 av. J.-C.','70 apr. J.-C.','135 apr. J.-C.'],
+        answer:'70 apr. J.-C.',
+        explain:'En 70 après J.-C., les Romains brûlent le second Temple, amplifiant la diaspora juive.'
+      },
+    ]
+  },
+  {
+    id:'s2', name:'Session 2 · Abraham & Moïse',
+    icon:'📖', desc:'Les Hébreux d\'après la Bible',
+    xpRequired:0, xpReward:100,
+    steps:[
+      {type:'lesson', title:'I. Les Hébreux d\'après la Bible', emoji:'📜',
+        text:`La <b>Bible hébraïque</b> a été rédigée entre le <b>VIIIe et le IIe siècle avant J.-C.</b> Elle propose une histoire des origines du peuple hébreu.<br><br>
+        <b>Abraham</b> est le premier grand personnage. Il passe une <b>alliance (un pacte) avec Yahvé</b> : Dieu lui promet la terre de Canaan (l'actuelle Palestine) en échange de sa fidélité. Abraham et sa famille quittent leur pays pour rejoindre Canaan.<br><br>
+        Plus tard, une famine chasse les descendants d'Abraham en <b>Égypte</b>, où ils deviennent <b>esclaves de Pharaon</b>. C'est là qu'intervient <b>Moïse</b>, la deuxième grande figure.<br><br>
+        Guidé par Dieu, Moïse <b>libère les Hébreux d'Égypte</b> et les conduit à travers le désert. Sur le mont Sinaï, Dieu lui remet les <b>Dix Commandements</b> gravés sur les Tables de la Loi : des règles à la fois <b>religieuses</b> (honorer Dieu) et <b>de vie en commun</b> (ne pas tuer, ne pas voler…).`
+      },
+      {type:'mcq', q:'Qui est Abraham dans la tradition hébraïque ?',
+        choices:['Un roi d\'Israël','Le premier prophète à passer une alliance avec Yahvé','L\'auteur de la Bible','Un pharaon d\'Égypte'],
+        answer:'Le premier prophète à passer une alliance avec Yahvé',
+        explain:'Abraham passe une alliance avec Yahvé : Dieu lui promet la terre de Canaan en échange de sa fidélité.'
+      },
+      {type:'mcq', q:'Pourquoi les descendants d\'Abraham partent-ils en Égypte ?',
+        choices:['Pour fuir les Assyriens','À cause d\'une guerre','À cause d\'une famine','Pour construire les pyramides'],
+        answer:'À cause d\'une famine',
+        explain:'Une famine chasse les descendants d\'Abraham (au temps de Jacob et ses douze fils) vers l\'Égypte.'
+      },
+      {type:'tf', q:'Moïse reçoit les Dix Commandements au bord du Nil.',
+        answer:false,
+        explain:'Faux ! C\'est sur le mont Sinaï, dans le désert, que Dieu donne les Dix Commandements à Moïse.'
+      },
+      {type:'input', q:'Sur quelle montagne Dieu donne-t-il les Dix Commandements à Moïse ?',
+        answer:'sinaï', display:'Sinaï',
+        explain:'Le mont Sinaï est dans le désert. C\'est là que Dieu remet à Moïse les Tables de la Loi.'
+      },
+      {type:'mcq', q:'Qu\'est-ce que les Dix Commandements ?',
+        choices:['Les règles de construction du Temple','Des règles religieuses et de vie en commun données par Dieu à Moïse','La liste des rois d\'Israël','Les récits de la création du monde'],
+        answer:'Des règles religieuses et de vie en commun données par Dieu à Moïse',
+        explain:'Les Dix Commandements mêlent règles religieuses (honorer Dieu) et règles de vie en commun (ne pas tuer, voler…).'
+      },
+      {type:'tf', q:'D\'après les archéologues, la fuite d\'Égypte telle que la décrit la Bible est difficile à confirmer historiquement.',
+        answer:true,
+        explain:'Vrai ! Au XIIIe siècle av. J.-C., les Égyptiens dominaient aussi Canaan — difficile d\'y échapper à Pharaon. Les archéologues manquent de preuves concrètes de cet exode.'
+      },
+      {type:'mcq', q:'Comment s\'appelle la terre promise par Dieu à Abraham ?',
+        choices:['Babylone','L\'Égypte','Le pays de Canaan','La Mésopotamie'],
+        answer:'Le pays de Canaan',
+        explain:'Le pays de Canaan correspond à l\'actuelle Palestine. C\'est la "Terre promise" dans la Bible hébraïque.'
+      },
+    ]
+  },
+  {
+    id:'s3', name:'Session 3 · Royaumes & invasions',
+    icon:'⚔️', desc:'Les Hébreux d\'après les historiens',
+    xpRequired:0, xpReward:100,
+    steps:[
+      {type:'lesson', title:'II. Les Hébreux d\'après les historiens', emoji:'🏰',
+        text:`De retour à Canaan, les Hébreux fondent le <b>royaume d'Israël</b>. Le roi <b>David</b> (dont l'existence est <b>attestée par les historiens</b>) fait de <b>Jérusalem</b> la capitale.<br><br>
+        Son fils <b>Salomon</b> (moins bien attesté historiquement) aurait fait construire le <b>premier Temple de Jérusalem</b> en l'honneur de Yahvé.<br><br>
+        Après Salomon, le territoire se divise en <b>deux royaumes</b> :<br>
+        🔸 <b>Le royaume d'Israël</b> (nord) → conquis par les <b>Assyriens</b> au <b>VIIIe s. av. J.-C.</b><br>
+        🔸 <b>Le royaume de Judée</b> (sud) → détruit par les <b>Babyloniens</b> au <b>VIe s. av. J.-C.</b> Les Hébreux sont emmenés en captivité à <b>Babylone</b>.<br><br>
+        Enfin, les <b>Romains</b> brûlent le second Temple en <b>70 apr. J.-C.</b> et interdisent Jérusalem aux Juifs en <b>135 apr. J.-C.</b>, provoquant la <b>diaspora</b> (dispersion des Juifs dans le monde).`
+      },
+      {type:'mcq', q:'Quel roi hébreu fait de Jérusalem sa capitale ?',
+        choices:['Abraham','Moïse','David','Salomon'],
+        answer:'David',
+        explain:'C\'est le roi David dont l\'existence est attestée par les historiens. Il fonde Jérusalem comme capitale du royaume d\'Israël.'
+      },
+      {type:'mcq', q:'Qui conquiert le royaume d\'Israël (nord) au VIIIe siècle av. J.-C. ?',
+        choices:['Les Babyloniens','Les Romains','Les Assyriens','Les Égyptiens'],
+        answer:'Les Assyriens',
+        explain:'Le royaume d\'Israël (au nord) est conquis par les Assyriens au VIIIe siècle av. J.-C.'
+      },
+      {type:'mcq', q:'Qui détruit le royaume de Judée et emmène les Hébreux en captivité à Babylone ?',
+        choices:['Les Assyriens','Les Romains','Les Perses','Les Babyloniens'],
+        answer:'Les Babyloniens',
+        explain:'Au VIe siècle av. J.-C., les Babyloniens détruisent le royaume de Judée et emmènent les Hébreux en captivité à Babylone.'
+      },
+      {type:'tf', q:'L\'existence du roi Salomon est prouvée par les archéologues.',
+        answer:false,
+        explain:'Faux ! L\'existence de Salomon n\'est pas attestée historiquement, contrairement à son père David.'
+      },
+      {type:'input', q:'En quelle année les Romains brûlent-ils le second Temple de Jérusalem ?',
+        answer:'70', display:'70 apr. J.-C.',
+        explain:'En 70 après J.-C., les Romains brûlent le second Temple, ce qui amplifie la diaspora juive.'
+      },
+      {type:'mcq', q:'Que signifie le mot "diaspora" ?',
+        choices:['Alliance entre deux peuples','Temple juif','Dispersion d\'un peuple','Fête religieuse'],
+        answer:'Dispersion d\'un peuple',
+        explain:'Diaspora vient du grec et signifie "dispersion". Elle désigne la dispersion des Juifs à travers le monde, après la destruction des royaumes.'
+      },
+      {type:'tf', q:'Le nom "Juifs" vient du royaume de Judée.',
+        answer:true,
+        explain:'Vrai ! Le mot "Juifs" désigne les descendants des Hébreux du royaume de Juda, à partir de l\'exil à Babylone.'
+      },
+    ]
+  },
+  {
+    id:'s4', name:'Session 4 · Pratique du judaïsme',
+    icon:'🕍', desc:'Temple, synagogues, fêtes et arts',
+    xpRequired:0, xpReward:100,
+    steps:[
+      {type:'lesson', title:'III. La pratique du judaïsme', emoji:'✡️',
+        text:`Après la destruction du Temple, le culte juif se transforme. Le <b>shabbat</b> (jour de repos du vendredi soir au samedi soir), les Juifs se réunissent dans les <b>synagogues</b> pour prier et lire la <b>Torah</b>.<br><br>
+        Les <b>rabbins</b> deviennent les chefs religieux des communautés. Ils étudient et commentent les textes bibliques, précisant les règles de vie.<br><br>
+        Les Juifs respectent des <b>interdits alimentaires</b> (nourriture casher) et commémorent des <b>fêtes importantes</b>. La plus importante est <b>Pessah</b> (la Pâque juive), qui rappelle la sortie d'Égypte.<br><br>
+        Dans les arts, les grands <b>symboles du judaïsme</b> sont :<br>
+        🏛️ Le Temple · 📦 L'Arche d'alliance · 🕎 La Ménorah (chandelier à 7 branches)`
+      },
+      {type:'mcq', q:'Où les Juifs se réunissent-ils pour prier après la destruction du Temple ?',
+        choices:['Dans les cathédrales','Dans les mosquées','Dans les synagogues','Dans les temples grecs'],
+        answer:'Dans les synagogues',
+        explain:'La synagogue est le lieu de culte juif depuis la diaspora. Les Juifs y prient et lisent la Torah.'
+      },
+      {type:'mcq', q:'Qu\'est-ce que le shabbat ?',
+        choices:['Une fête annuelle','Un livre sacré','Le jour de repos du vendredi soir au samedi soir','Le nom du premier Temple'],
+        answer:'Le jour de repos du vendredi soir au samedi soir',
+        explain:'Le shabbat est le jour de repos consacré à Dieu, du vendredi soir au samedi soir.'
+      },
+      {type:'mcq', q:'Quelle est la fête juive la plus importante ?',
+        choices:['Hanoukka','Pessah','Pourim','Yom Kippour'],
+        answer:'Pessah',
+        explain:'Pessah (la Pâque juive) est la fête la plus importante. Elle commémore la sortie d\'Égypte sous la conduite de Moïse.'
+      },
+      {type:'tf', q:'La Torah désigne les cinq premiers livres de la Bible.',
+        answer:true,
+        explain:'Vrai ! Torah signifie "Loi" en hébreu. Il s\'agit des 5 premiers livres de la Bible, qui contiennent les règles données par Dieu.'
+      },
+      {type:'mcq', q:'Comment s\'appelle le chandelier à 7 branches, symbole du judaïsme ?',
+        choices:['L\'Arche d\'alliance','La Ménorah','La Torah','Le Talmud'],
+        answer:'La Ménorah',
+        explain:'La Ménorah est un chandelier à 7 branches, l\'un des grands symboles du judaïsme avec le Temple et l\'Arche d\'alliance.'
+      },
+      {type:'tf', q:'Les rabbins sont les chefs politiques des communautés juives.',
+        answer:false,
+        explain:'Faux ! Les rabbins sont les chefs RELIGIEUX des communautés juives. Ils étudient et commentent les textes bibliques.'
+      },
+      {type:'mcq', q:'Quelle fête juive commémore la sortie d\'Égypte ?',
+        choices:['Hanoukka','Kippour','Pessah','Souccot'],
+        answer:'Pessah',
+        explain:'Pessah est la Pâque juive. Elle rappelle la libération des Hébreux de l\'esclavage en Égypte, guidés par Moïse.'
+      },
+    ]
+  },
+  {
+    id:'s5', name:'Session 5 · Flashcards définitions',
+    icon:'🃏', desc:'Apprends tout le vocabulaire clé',
+    xpRequired:0, xpReward:120,
+    steps:[
+      {type:'lesson', title:'Les mots clés du chapitre', emoji:'📚',
+        text:`Cette session te propose d'apprendre <b>tous les mots de vocabulaire</b> du chapitre.<br><br>
+        Pour chaque mot, <b>lis d'abord la définition</b> en cliquant sur la carte, puis essaie de te souvenir du mot correspondant pour la question suivante.<br><br>
+        Ces définitions sont exactement celles de ton cours — <b>apprends-les bien</b>, elles peuvent tomber à l'évaluation !`
+      },
+      {type:'flashcard', word:'Bible hébraïque',
+        def:'Mot grec signifiant "les livres". Désigne le livre sacré des juifs, comprenant plusieurs parties rédigées à des époques différentes.',
+        source:'Vocabulaire — Partie I'
+      },
+      {type:'flashcard', word:'Monothéisme',
+        def:'Religion dans laquelle on ne croit qu\'en un seul Dieu. Chez les Hébreux, ce dieu unique s\'appelle Yahvé.',
+        source:'Vocabulaire — Partie I'
+      },
+      {type:'flashcard', word:'Pays de Canaan',
+        def:'Palestine actuelle, appelée aussi "Terre promise" dans la Bible hébraïque. C\'est la terre que Dieu promet à Abraham.',
+        source:'Vocabulaire — Partie I'
+      },
+      {type:'flashcard', word:'Yahvé',
+        def:'Nom donné à Dieu par les Hébreux. C\'est le dieu unique du monothéisme juif.',
+        source:'Vocabulaire — Partie I'
+      },
+      {type:'flashcard', word:'Juifs',
+        def:'Nom donné aux descendants des Hébreux du royaume de Juda, à partir de l\'exil à Babylone.',
+        source:'Vocabulaire — Partie II'
+      },
+      {type:'flashcard', word:'Diaspora',
+        def:'Mot grec signifiant "dispersion". Désigne la dispersion des Juifs à travers le monde, depuis la chute des royaumes d\'Israël et de Juda.',
+        source:'Vocabulaire — Partie II'
+      },
+      {type:'flashcard', word:'Shabbat',
+        def:'Jour de repos consacré à Dieu, du vendredi soir au samedi soir.',
+        source:'Vocabulaire — Partie III'
+      },
+      {type:'flashcard', word:'Synagogue',
+        def:'Lieu de culte où les juifs se rassemblent pour prier et lire la Torah, après la destruction du Temple.',
+        source:'Vocabulaire — Partie III'
+      },
+      {type:'flashcard', word:'Torah',
+        def:'Mot hébreu signifiant "Loi". Désigne les cinq premiers livres de la Bible, contenant les règles données par Dieu.',
+        source:'Vocabulaire — Partie III'
+      },
+      {type:'flashcard', word:'Rabbin',
+        def:'Chef religieux d\'une communauté juive, qui étudie et commente les écrits bibliques.',
+        source:'Vocabulaire — Partie III'
+      },
+      // Quiz vocab
+      {type:'mcq', q:'Que signifie le mot "Torah" en hébreu ?',
+        choices:['Dieu','Loi','Temple','Alliance'],
+        answer:'Loi',
+        explain:'Torah signifie "Loi" en hébreu. C\'est le nom des cinq premiers livres de la Bible.'
+      },
+      {type:'input', q:'Comment appelle-t-on la dispersion des Juifs à travers le monde ?',
+        answer:'diaspora', display:'Diaspora',
+        explain:'Diaspora vient du grec "dispersion". C\'est un terme clé pour comprendre l\'histoire du peuple juif.'
+      },
+      {type:'mcq', q:'Quel est le nom hébreu de Dieu ?',
+        choices:['Allah','Yahvé','Jésus','Elohim'],
+        answer:'Yahvé',
+        explain:'Yahvé est le nom donné à Dieu par les Hébreux, le dieu unique du monothéisme juif.'
+      },
+    ]
+  },
+  {
+    id:'s6', name:'Session 6 · Bilans à retenir',
+    icon:'📋', desc:'Les résumés des 3 parties du cours',
+    xpRequired:0, xpReward:100,
+    steps:[
+      {type:'lesson', title:'Les bilans du chapitre', emoji:'📋',
+        text:`Cette session présente les <b>3 bilans</b> du cours — les résumés officiels que ta prof a rédigés.<br><br>
+        Lis-les attentivement, puis réponds aux questions qui suivent. Ces bilans sont exactement ce que tu dois savoir pour l'évaluation.`
+      },
+      {type:'bilan', title:'Bilan 1 — Les Hébreux d\'après la Bible',
+        text:`La Bible hébraïque, rédigée entre le VIIIe et le IIe siècle avant J.-C., propose une histoire des origines du peuple hébreu, <b>premier peuple monothéiste</b> de l'histoire.<br><br>
+        La Genèse raconte le parcours des Hébreux jusqu'au pays de Canaan sous la direction d'<b>Abraham</b>, qui a passé une <b>alliance avec Yahvé</b>. Chassé par une famine, le peuple s'installe en Égypte, où il devient esclave de Pharaon.<br><br>
+        L'Exode fait le récit de leur fuite à travers le désert et la mer Rouge sous la conduite de <b>Moïse</b>. Dieu lui donne sur le mont Sinaï les <b>dix Commandements</b> gravés sur les <b>Tables de la Loi</b>.`
+      },
+      {type:'mcq', q:'Quelle partie de la Bible raconte la fuite d\'Égypte ?',
+        choices:['La Genèse','Le Lévitique','L\'Exode','Les Nombres'],
+        answer:'L\'Exode',
+        explain:'L\'Exode (du grec "sortie") raconte la fuite des Hébreux hors d\'Égypte sous la conduite de Moïse.'
+      },
+      {type:'tf', q:'La Genèse est la partie de la Bible qui raconte la fuite d\'Égypte.',
+        answer:false,
+        explain:'Faux ! C\'est l\'Exode qui raconte la fuite. La Genèse, elle, raconte la création du monde et l\'histoire d\'Abraham.'
+      },
+      {type:'bilan', title:'Bilan 2 — Les Hébreux d\'après les historiens',
+        text:`De retour à Canaan, les Hébreux fondent le <b>royaume d'Israël</b>, dont Jérusalem devient la capitale avec le roi <b>David</b> (attesté historiquement). Son fils <b>Salomon</b> aurait fait construire le <b>premier Temple de Jérusalem</b>.<br><br>
+        Après lui, le territoire est divisé en deux royaumes :<br>
+        • Le royaume d'Israël (nord) conquis par les <b>Assyriens</b> au <b>VIIIe s. av. J.-C.</b><br>
+        • Le royaume de Judée (sud) détruit par les <b>Babyloniens</b> au <b>VIe s. av. J.-C.</b><br><br>
+        Les Romains brûlent le second Temple en <b>70 apr. J.-C.</b> et interdisent Jérusalem en <b>135 apr. J.-C.</b>, amplifiant la <b>diaspora</b>.`
+      },
+      {type:'mcq', q:'Qui construit le premier Temple de Jérusalem selon la Bible ?',
+        choices:['David','Abraham','Moïse','Salomon'],
+        answer:'Salomon',
+        explain:'C\'est Salomon, fils de David, qui aurait fait construire le premier Temple de Jérusalem en l\'honneur de Yahvé.'
+      },
+      {type:'bilan', title:'Bilan 3 — La pratique du judaïsme',
+        text:`La disparition du Temple a transformé le culte : le <b>shabbat</b>, les juifs se réunissent dans les <b>synagogues</b> pour prier et lire la <b>Torah</b>. Les <b>rabbins</b> deviennent les chefs religieux.<br><br>
+        Les juifs respectent des <b>règles religieuses et morales</b> : interdits alimentaires, respect du shabbat. Ils commémorent des grandes fêtes dont la plus importante est <b>Pessah</b> (la Pâque juive, rappelant la sortie d'Égypte).<br><br>
+        Dans les arts, les symboles du judaïsme sont le <b>Temple</b>, l'<b>Arche d'alliance</b> et la <b>Ménorah</b> (chandelier à 7 branches).`
+      },
+      {type:'mcq', q:'Quelle fête commémore la sortie d\'Égypte ?',
+        choices:['Le shabbat','Hanoukka','Pessah','Souccot'],
+        answer:'Pessah',
+        explain:'Pessah, la Pâque juive, est la fête la plus importante du calendrier juif. Elle rappelle la libération de l\'esclavage en Égypte.'
+      },
+      {type:'tf', q:'La Ménorah est un chandelier à 5 branches.',
+        answer:false,
+        explain:'Faux ! La Ménorah est un chandelier à 7 branches, l\'un des grands symboles du judaïsme.'
+      },
+    ]
+  },
+  {
+    id:'s7', name:'Session 7 · Grand quiz final',
+    icon:'🏆', desc:'Révision complète du chapitre — 15 questions',
+    xpRequired:0, xpReward:200,
+    steps:[
+      {type:'lesson', title:'Grand quiz de révision', emoji:'🏆',
+        text:`C'est la session finale ! <b>15 questions</b> couvrant l'ensemble du chapitre sur le monothéisme juif.<br><br>
+        Tu as <b>5 vies</b> pour cette session. Montre ce que tu as appris !`
+      },
+      {type:'mcq', q:'Quels sont les deux grands personnages de la Bible hébraïque étudiés en classe ?',
+        choices:['Moïse et Salomon','Abraham et David','Abraham et Moïse','David et Salomon'],
+        answer:'Abraham et Moïse',
+        explain:'Abraham (qui passe l\'alliance avec Yahvé) et Moïse (qui guide les Hébreux hors d\'Égypte) sont les deux grandes figures bibliques du chapitre.'
+      },
+      {type:'tf', q:'Le mot "Bible" vient de l\'hébreu et signifie "alliance".',
+        answer:false,
+        explain:'Faux ! "Bible" vient du grec et signifie "les livres". L\'alliance (pacte avec Dieu) est un concept différent.'
+      },
+      {type:'mcq', q:'Quelle est la capitale du royaume hébreu fondée par David ?',
+        choices:['Babylone','Jérusalem','Le Caire','Damas'],
+        answer:'Jérusalem',
+        explain:'Le roi David fait de Jérusalem la capitale du royaume d\'Israël. C\'est une ville sainte pour les trois religions monothéistes.'
+      },
+      {type:'input', q:'Comment s\'appelle le dieu unique des Hébreux ?',
+        answer:'yahvé', display:'Yahvé',
+        explain:'Yahvé est le nom donné à Dieu par les Hébreux dans la Bible hébraïque.'
+      },
+      {type:'mcq', q:'Qu\'est-ce que l\'Arche d\'alliance ?',
+        choices:['Un bateau de Noé','Le coffre contenant les Tables de la Loi','Le premier Temple de Jérusalem','Un symbole romain'],
+        answer:'Le coffre contenant les Tables de la Loi',
+        explain:'L\'Arche d\'alliance est un coffre précieux qui contenait les Tables de la Loi données par Dieu à Moïse. C\'est un symbole central du judaïsme.'
+      },
+      {type:'tf', q:'Les Hébreux ont toujours été monothéistes.',
+        answer:false,
+        explain:'Faux ! D\'après les historiens, les Hébreux ont d\'abord été polythéistes (croyance en plusieurs dieux) avant d\'adopter le monothéisme.'
+      },
+      {type:'mcq', q:'Quelle est la différence entre le monothéisme et le polythéisme ?',
+        choices:['Monothéisme = un dieu, polythéisme = plusieurs dieux','Monothéisme = pas de dieu, polythéisme = un dieu','Monothéisme = plusieurs dieux, polythéisme = un dieu','Aucune différence'],
+        answer:'Monothéisme = un dieu, polythéisme = plusieurs dieux',
+        explain:'Mono = un, poly = plusieurs, théisme = croyance en Dieu. Les Hébreux sont le premier peuple monothéiste de l\'histoire.'
+      },
+      {type:'mcq', q:'En quelle année les Romains interdisent-ils Jérusalem aux Juifs ?',
+        choices:['70 av. J.-C.','70 apr. J.-C.','135 av. J.-C.','135 apr. J.-C.'],
+        answer:'135 apr. J.-C.',
+        explain:'En 135 après J.-C., les Romains interdisent Jérusalem aux Juifs, amplifiant encore la diaspora.'
+      },
+      {type:'input', q:'Comment s\'appelle la fête juive qui rappelle la sortie d\'Égypte ?',
+        answer:'pessah', display:'Pessah',
+        explain:'Pessah (ou Pâque juive) commémore la libération des Hébreux de l\'esclavage en Égypte, sous la conduite de Moïse.'
+      },
+      {type:'mcq', q:'Qui sont les Assyriens par rapport aux Hébreux ?',
+        choices:['Des alliés','Les conquérants du royaume d\'Israël (nord)','Les conquérants du royaume de Judée (sud)','Les constructeurs du Temple'],
+        answer:'Les conquérants du royaume d\'Israël (nord)',
+        explain:'Les Assyriens conquièrent le royaume d\'Israël (au nord) au VIIIe siècle av. J.-C. Ce sont les Babyloniens qui s\'emparent du royaume de Judée (au sud).'
+      },
+      {type:'tf', q:'La synagogue remplace le Temple comme lieu de culte après la destruction de ce dernier.',
+        answer:true,
+        explain:'Vrai ! Après la destruction du Temple par les Romains, les Juifs se réunissent dans les synagogues pour prier et lire la Torah.'
+      },
+      {type:'mcq', q:'Dans quel ordre ces événements se sont-ils produits ?',
+        choices:[
+          'Babyloniens → Assyriens → Romains',
+          'Romains → Assyriens → Babyloniens',
+          'Assyriens → Babyloniens → Romains',
+          'Babyloniens → Romains → Assyriens'
+        ],
+        answer:'Assyriens → Babyloniens → Romains',
+        explain:'VIIIe s. av. J.-C. : Assyriens conquièrent Israël. VIe s. av. J.-C. : Babyloniens détruisent Judée. 70-135 apr. J.-C. : Romains détruisent le Temple et expulsent les Juifs.'
+      },
+      {type:'mcq', q:'Que signifie "Pessah" ?',
+        choices:['La loi','Le passage','La dispersion','La promesse'],
+        answer:'Le passage',
+        explain:'Pessah signifie "le passage" en hébreu — le passage de l\'esclavage à la liberté lors de la sortie d\'Égypte.'
+      },
+      {type:'tf', q:'Le rabbin est un chef politique dans les communautés juives.',
+        answer:false,
+        explain:'Faux ! Le rabbin est le chef RELIGIEUX de la communauté. Il étudie et commente les textes de la Torah.'
+      },
+      {type:'mcq', q:'Quelle affirmation résume le mieux la problématique du chapitre ?',
+        choices:[
+          'Les Hébreux ont inventé l\'écriture',
+          'Le monothéisme juif est né progressivement, entre Bible et histoire, face aux épreuves du peuple hébreu',
+          'Les Hébreux ont toujours vécu en Palestine',
+          'Le judaïsme est né à Babylone'
+        ],
+        answer:'Le monothéisme juif est né progressivement, entre Bible et histoire, face aux épreuves du peuple hébreu',
+        explain:'C\'est bien la réponse à la problématique : le monothéisme juif s\'est construit à travers les épreuves (exodes, invasions, diaspora), entre récit biblique et histoire.'
+      },
+    ]
+  }
+];
+
+// ═══════════════════════════
+// STATE
+// ═══════════════════════════
+let st = {xp:0, done:{}};
+function loadSt(){try{const s=JSON.parse(localStorage.getItem('hq-st')||'{}');st={...st,...s};}catch(e){}}
+function saveSt(){localStorage.setItem('hq-st',JSON.stringify(st));}
+
+// ═══════════════════════════
+// QUIZ ENGINE
+// ═══════════════════════════
+let cur = {session:null, steps:[], idx:0, score:0, correct:0, lives:5, answered:false};
+
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.getElementById('app').scrollTop=0;
+}
+
+function goHome(){
+  renderHome();
+  showScreen('screen-home');
+}
+
+function renderHome(){
+  document.getElementById('xp-disp').textContent=st.xp;
+  const max=700;
+  const pct=Math.min(100,Math.round((st.xp/max)*100));
+  document.getElementById('xp-fill').style.width=pct+'%';
+  document.getElementById('xp-label').textContent=st.xp+' / '+max+' XP';
+
+  const list=document.getElementById('sessions-list');
+  list.innerHTML='';
+  const doneCount=Object.keys(st.done).length;
+
+  SESSIONS.forEach((s,i)=>{
+    const done=!!st.done[s.id];
+    const card=document.createElement('div');
+    card.className='sess-card '+(done?'done':'unlocked');
+    card.innerHTML=`
+      <div class="sess-icon">${s.icon}</div>
+      <div class="sess-info">
+        <div class="sess-name">${s.name}</div>
+        <div class="sess-desc">${s.desc}</div>
+      </div>
+      ${done
+        ? '<div class="sess-done-badge">✅</div>'
+        : `<div class="sess-badge">~10 min</div>`}
+    `;
+    card.onclick=()=>startSession(s);
+    list.appendChild(card);
+  });
+}
+
+function startSession(s){
+  cur.session=s;
+  cur.steps=[...s.steps];
+  cur.idx=0; cur.score=0; cur.correct=0;
+  cur.lives=(s.id==='s7')?5:3;
+  cur.answered=false;
+  showScreen('screen-session');
+  renderLives();
+  renderStep();
+}
+
+function renderLives(){
+  const w=document.getElementById('q-lives');
+  w.innerHTML='';
+  for(let i=0;i<cur.lives;i++){
+    const h=document.createElement('span');
+    h.className='heart';h.textContent='❤️';
+    w.appendChild(h);
+  }
+}
+
+function loseLife(){
+  cur.lives=Math.max(0,cur.lives-1);
+  const hearts=document.querySelectorAll('.heart');
+  // mark last active heart as lost
+  for(let i=hearts.length-1;i>=0;i--){
+    if(!hearts[i].classList.contains('lost')){
+      hearts[i].classList.add('lost');break;
+    }
+  }
+}
+
+function renderStep(){
+  const total=cur.steps.length;
+  const pct=Math.round((cur.idx/total)*100);
+  document.getElementById('q-pfill').style.width=pct+'%';
+
+  if(cur.idx>=total||cur.lives<=0){endSession();return;}
+
+  const step=cur.steps[cur.idx];
+  cur.answered=false;
+  const c=document.getElementById('session-content');
+  c.innerHTML='';
+
+  if(step.type==='lesson') renderLesson(step,c);
+  else if(step.type==='timeline') renderTimeline(step,c);
+  else if(step.type==='bilan') renderBilan(step,c);
+  else if(step.type==='flashcard') renderFlashcard(step,c);
+  else if(step.type==='mcq') renderMCQ(step,c);
+  else if(step.type==='tf') renderTF(step,c);
+  else if(step.type==='input') renderInput(step,c);
+}
+
+function renderLesson(step,c){
+  c.innerHTML=`
+    <div class="lesson-intro">
+      <div class="lesson-emoji">${step.emoji}</div>
+      <div class="lesson-title">${step.title}</div>
+      <div class="lesson-text">${step.text}</div>
+    </div>
+    <button class="btn-primary" onclick="advance()">Continuer →</button>
+  `;
+}
+
+function renderTimeline(step,c){
+  let tlHTML='<div class="timeline">';
+  step.events.forEach(e=>{
+    tlHTML+=`<div class="tl-item">
+      <div class="tl-dot"></div>
+      <div class="tl-date">${e.date}</div>
+      <div class="tl-fact">${e.fact}</div>
+    </div>`;
+  });
+  tlHTML+='</div>';
+  c.innerHTML=`
+    <div class="lesson-intro">
+      <div class="lesson-emoji">📅</div>
+      <div class="lesson-title">${step.title}</div>
+      ${tlHTML}
+    </div>
+    <button class="btn-primary" onclick="advance()">J'ai retenu →</button>
+  `;
+}
+
+function renderBilan(step,c){
+  c.innerHTML=`
+    <div class="bilan-card">
+      <div class="bilan-title">📋 ${step.title}</div>
+      <div class="bilan-text">${step.text}</div>
+    </div>
+    <button class="btn-primary" onclick="advance()">Lu et retenu →</button>
+  `;
+}
+
+function renderFlashcard(step,c){
+  c.innerHTML=`
+    <div class="q-card">
+      <div class="q-type-badge">🃏 FLASHCARD — Clique pour voir la définition</div>
+    </div>
+    <div class="flashcard" id="fc-card" onclick="flipCard()">
+      <div class="fc-word">${step.word}</div>
+      <div class="fc-tap">Appuie pour voir la définition</div>
+      <div class="fc-def">${step.def}</div>
+      <div class="fc-source">${step.source}</div>
+    </div>
+    <button class="btn-primary" id="fc-next" style="display:none" onclick="advance()">Carte suivante →</button>
+  `;
+}
+
+function flipCard(){
+  const fc=document.getElementById('fc-card');
+  fc.classList.toggle('flipped');
+  if(fc.classList.contains('flipped')){
+    document.getElementById('fc-next').style.display='block';
+  }
+}
+
+function renderMCQ(step,c){
+  const shuffled=shuffle([...step.choices]);
+  let btns='';
+  shuffled.forEach((ch,i)=>{
+    btns+=`<button class="mcq-btn" id="mcq-${i}" onclick="checkMCQ(${i},'${escQ(ch)}','${escQ(step.answer)}','${escQ(step.explain)}')">${ch}</button>`;
+  });
+  c.innerHTML=`
+    <div class="q-card">
+      <div class="q-type-badge">❓ QCM</div>
+      <div class="q-text">${step.q}</div>
+    </div>
+    <div class="mcq-grid">${btns}</div>
+    <div class="feedback" id="fb"></div>
+    <button class="btn-next" id="btn-next" onclick="advance()">Continuer →</button>
+  `;
+}
+
+function escQ(s){return (s||'').replace(/'/g,"\\'");}
+
+function checkMCQ(idx,chosen,answer,explain){
+  if(cur.answered)return;
+  cur.answered=true;
+  const correct=chosen===answer;
+  document.querySelectorAll('.mcq-btn').forEach(b=>b.disabled=true);
+  document.getElementById('mcq-'+idx).classList.add(correct?'correct':'wrong');
+  if(!correct){
+    document.querySelectorAll('.mcq-btn').forEach(b=>{if(b.textContent===answer)b.classList.add('correct');});
+    loseLife();
+  } else {cur.score+=10;cur.correct++;}
+  showFB(correct,explain);
+  document.getElementById('btn-next').style.display='block';
+}
+
+function renderTF(step,c){
+  c.innerHTML=`
+    <div class="q-card">
+      <div class="q-type-badge">✅ VRAI ou FAUX</div>
+      <div class="q-text">${step.q}</div>
+    </div>
+    <div class="tf-grid">
+      <button class="tf-btn" id="tf-v" onclick="checkTF(true,${step.answer},'${escQ(step.explain)}')">VRAI</button>
+      <button class="tf-btn" id="tf-f" onclick="checkTF(false,${step.answer},'${escQ(step.explain)}')">FAUX</button>
+    </div>
+    <div class="feedback" id="fb"></div>
+    <button class="btn-next" id="btn-next" onclick="advance()">Continuer →</button>
+  `;
+}
+
+function checkTF(chosen,answer,explain){
+  if(cur.answered)return;
+  cur.answered=true;
+  const correct=(chosen===answer);
+  document.getElementById('tf-v').disabled=true;
+  document.getElementById('tf-f').disabled=true;
+  const chosenEl=document.getElementById(chosen?'tf-v':'tf-f');
+  chosenEl.classList.add(correct?'correct':'wrong');
+  if(!correct){
+    document.getElementById(answer?'tf-v':'tf-f').classList.add('correct');
+    loseLife();
+  } else {cur.score+=10;cur.correct++;}
+  showFB(correct,explain);
+  document.getElementById('btn-next').style.display='block';
+}
+
+function renderInput(step,c){
+  c.innerHTML=`
+    <div class="q-card">
+      <div class="q-type-badge">✏️ RÉPONSE LIBRE</div>
+      <div class="q-text">${step.q}</div>
+    </div>
+    <div class="input-wrap">
+      <input type="text" class="txt-input" id="txt-in" placeholder="Ta réponse..." autocomplete="off" autocorrect="off" spellcheck="false">
+      <button class="btn-check" id="btn-check" onclick="checkInput('${escQ(step.answer)}','${escQ(step.display)}','${escQ(step.explain)}')">Vérifier</button>
+    </div>
+    <div class="feedback" id="fb"></div>
+    <button class="btn-next" id="btn-next" onclick="advance()">Continuer →</button>
+  `;
+  document.getElementById('txt-in').focus();
+}
+
+function checkInput(answer,display,explain){
+  if(cur.answered)return;
+  const val=document.getElementById('txt-in').value.trim().toLowerCase();
+  if(!val)return;
+  cur.answered=true;
+  document.getElementById('btn-check').disabled=true;
+  const correct=val===answer.toLowerCase()||val===display.toLowerCase();
+  document.getElementById('txt-in').classList.add(correct?'correct':'wrong');
+  if(!correct){loseLife();}
+  else{cur.score+=15;cur.correct++;}
+  showFB(correct,explain+(correct?'':' La réponse était : '+display));
+  document.getElementById('btn-next').style.display='block';
+}
+
+function showFB(ok,detail){
+  const fb=document.getElementById('fb');
+  if(!fb)return;
+  fb.className='feedback '+(ok?'ok':'ko');
+  fb.style.display='block';
+  fb.innerHTML=`<div class="fb-t">${ok?'✓ Correct !':'✗ Pas tout à fait…'}</div><div class="fb-d">${detail}</div>`;
+}
+
+function advance(){
+  cur.idx++;
+  document.getElementById('app').scrollTop=0;
+  renderStep();
+}
+
+function endSession(){
+  const s=cur.session;
+  const xpGained=Math.round(s.xpReward*(cur.lives>0?1:0.5));
+  st.xp+=xpGained;
+  st.done[s.id]=true;
+  saveSt();
+
+  const doneCount=Object.keys(st.done).length;
+  const emblem=cur.correct>=cur.steps.filter(x=>['mcq','tf','input'].includes(x.type)).length*0.8?'🏛️':'📜';
+  document.getElementById('res-emblem').textContent=emblem;
+  document.getElementById('res-title').textContent=cur.score>=80?'Excellent !':cur.score>=40?'Bien joué !':'Continue !';
+  document.getElementById('res-sub').textContent='+'+xpGained+' XP ajoutés';
+  document.getElementById('res-score').textContent=cur.score;
+  document.getElementById('res-correct').textContent=cur.correct;
+  document.getElementById('res-xp').textContent='+'+xpGained;
+  document.getElementById('res-total').textContent=doneCount+'/7';
+  showScreen('screen-results');
+}
+
+function retrySession(){startSession(cur.session);}
+
+function shuffle(a){
+  for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}
+  return a;
+}
+
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2000);
+}
+
+document.addEventListener('keydown',e=>{
+  if(e.key==='Enter'){
+    const screen=document.getElementById('screen-session');
+    if(!screen.classList.contains('active'))return;
+    const step=cur.steps[cur.idx];
+    if(step&&step.type==='input')checkInput(step.answer,step.display,step.explain);
+    else if(cur.answered){const bn=document.getElementById('btn-next');if(bn)advance();}
+  }
+});
+
+loadSt();
+renderHome();
+if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
+</script>
+</body>
+</html>
